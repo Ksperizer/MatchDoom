@@ -1,6 +1,8 @@
 import pygame
 import sys
+import socket
 from game.board import WIDTH, HEIGHT,CELL_SIZE, Board, WHITE, BLACK
+from game.morpion import SocketClient
 
 class Game:
     def __init__(self):
@@ -13,6 +15,7 @@ class Game:
         self.current_player = "X"
         self.running = True
         self.game_over = False
+        self.client = SocketClient()  
 
     def run(self):
         while self.running:
@@ -41,6 +44,9 @@ class Game:
                         self.game_over = False
                     else:
                         self.current_player = "O" if self.current_player == "X" else "X"
+        
+        self.client.send_move(row, col)
+        print("Move sent to server:", row, col)
 
     def draw(self):
         self.screen.fill(WHITE)
