@@ -1,6 +1,6 @@
 -- table queue -- 
 CREATE TABLE queue (
-    id INT AUTOINCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     ip varchar(55) NOT NULL,
     port INT NOT NULL,
     pseudo varchar(55) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE queue (
 
 -- table matches --
 CREATE TABLE matches (
-    id INT PRIMARY KEY AUTOINCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     player1_id INT NOT NULL,
     player2_id INT NOT NULL,
     board TEXT DEFAULT '',
@@ -23,7 +23,7 @@ CREATE TABLE matches (
 
 -- table moves --
 CREATE TABLE moves (
-    id INT AUTOINCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     match_id INT NOT NULL,
     player ENUM('player1', 'player2') NOT NULL,
     position INT NOT NULL, -- 0-8 for 3x3 board
@@ -34,9 +34,9 @@ CREATE TABLE moves (
 
 -- table users --
 CREATE TABLE users (
-    id INT PRIMARY KEY AUTOINCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     pseudo VARCHAR(55) UNIQUE NOT NULL,
-    password_hashed TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

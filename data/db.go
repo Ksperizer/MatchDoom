@@ -8,7 +8,7 @@ import (
 var DB *sql.DB
 
 func InitDB(){
-	dsn := "root:root@tcp(127.0.0.1:3306)/matchdoom"
+	dsn := "root:J&suisMySQL!1219@tcp(127.0.0.1:3306)/matchdoom"
 	var err error 
 	DB, err = sql.Open("mysql", dsn)
 	if err != nil {
