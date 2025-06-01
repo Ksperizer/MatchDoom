@@ -1,7 +1,3 @@
 # MatchDoom
 ProjectRedLine
 
-mot de passe mysql config 
-J&suisMySQL!1219
-
-PostMan: 
