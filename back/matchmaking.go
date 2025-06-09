@@ -50,7 +50,7 @@ func HandleClient(conn net.Conn) {
 		msg := string(buffer[:n])
 		fmt.Println("Received message:", msg)
 
-		var data map[String]string
+		var data map[string]string
 		json.Unmarshal(buffer[:n], &data)
 
 		switch data["type"] {

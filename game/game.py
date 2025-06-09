@@ -1,8 +1,8 @@
 import pygame
 import sys
 import socket
-from game.board import WIDTH, HEIGHT,CELL_SIZE, Board, WHITE, BLACK
-from game.morpion import SocketClient
+from board import WIDTH, HEIGHT,CELL_SIZE, Board, WHITE, BLACK
+from morpion import SocketClient
 
 class Game:
     def __init__(self):
@@ -33,7 +33,11 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN and not self.game_over:
                 x, y = event.pos
                 row, col = y // CELL_SIZE, x // CELL_SIZE
+
                 if self.board.set_cell(row, col, self.current_player):
+                    self.client.send_move(row, col)
+                    print("Move sent to server:", row, col)
+
                     winner = self.board.check_winner()
                     if winner:
                         self.game_over = True
@@ -44,9 +48,6 @@ class Game:
                         self.game_over = False
                     else:
                         self.current_player = "O" if self.current_player == "X" else "X"
-        
-        self.client.send_move(row, col)
-        print("Move sent to server:", row, col)
 
     def draw(self):
         self.screen.fill(WHITE)

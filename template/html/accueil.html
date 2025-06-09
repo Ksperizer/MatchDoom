@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application API Go</title>
+    <link rel="stylesheet" href="../css/accueil.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    
+    <div class="main-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>🚀 Mon Application API Go</h1>
+            <div class="status-indicator">
+                <div class="status-dot" id="apiStatus"></div>
+                <span id="statusText">Initialisation...</span>
+            </div>
+        </header>
+
+        <!-- Cadre central pour votre API -->
+        <main class="game-frame">
+            <div class="frame-header">
+                <h2>Zone d'Application</h2>
+                <div class="frame-controls">
+                    <button class="control-btn" id="refreshBtn">🔄</button>
+                    <button class="control-btn" id="settingsBtn">⚙️</button>
+                </div>
+            </div>
+            
+            <!-- ZONE PRINCIPALE - C'EST ICI QUE VOUS INTÉGREREZ VOTRE API -->
+            <div class="api-content" id="apiContainer">
+                <!-- Contenu de base - à remplacer par votre API -->
+                <div class="welcome-screen">
+                    <div class="welcome-icon">🎮</div>
+                    <h3>Prêt pour votre API Go</h3>
+                    <p>Intégrez votre contenu dans la section #apiContainer</p>
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer avec informations -->
+        <footer class="app-footer">
+            <div class="footer-info">
+                <span>🌐 API: <span id="apiUrl">localhost:8080</span></span>
+                <span>📊 Status: <span id="connectionStatus">En attente</span></span>
+                <span>⏰ <span id="currentTime"></span></span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/template/script/script.js"></script>
+</body>
+</html>
+
+<!-- 
+INSTRUCTIONS POUR L'INTÉGRATION DE VOTRE API :
+
+1. ZONE PRINCIPALE (HTML) :
+   - Remplacez le contenu de <div class="api-content" id="apiContainer">
+   - Ajoutez vos éléments HTML là où se trouve actuellement .welcome-screen
+
+2. APPELS API (JavaScript) :
+   - Modifiez la fonction loadAPIContent() dans script.js
+   - Ajoutez vos appels fetch() dans cette fonction
+   - Utilisez updateAPIContainer() pour mettre à jour le contenu
+
+3. CONFIGURATION API :
+   - Changez API_BASE_URL dans script.js
+   - Modifiez les headers si nécessaire dans getAPIHeaders()
+
+EXEMPLE D'INTÉGRATION :
+// Dans script.js, fonction loadAPIContent() :
+async function loadAPIContent() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/votre-endpoint`);
+        const data = await response.json();
+        updateAPIContainer(data);
+    } catch (error) {
+        showError(error.message);
+    }
+}

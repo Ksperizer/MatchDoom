@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - MatchDoom</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="background-overlay"></div>
+
+    <div class="main-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <h1>👤 Mon Profil Joueur</h1>
+            <div class="status-indicator">
+                <div class="status-dot connected" id="profileStatus"></div>
+                <span id="statusText">Connecté</span>
+            </div>
+        </header>
+
+        <!-- ZONE PROFIL -->
+        <main class="game-frame">
+            <div class="frame-header">
+                <h2>Détails du joueur</h2>
+                <div class="frame-controls">
+                    <button class="control-btn" onclick="window.location.href='accueil.html'">🏠</button>
+                    <button class="control-btn" id="logoutBtn">🚪</button>
+                </div>
+            </div>
+
+            <div class="api-content" id="profileContainer">
+                <!-- Infos à charger dynamiquement -->
+                <div class="welcome-screen" id="profileData">
+                    <div class="welcome-icon">🎯</div>
+                    <h3 id="pseudoDisplay">Pseudo: ...</h3>
+                    <p>Email: <span id="emailDisplay">...</span></p>
+                    <div class="api-success">
+                        <p><strong>Parties jouées :</strong> <span id="games">0</span></p>
+                        <p><strong>Victoires :</strong> <span id="wins">0</span></p>
+                        <p><strong>Défaites :</strong> <span id="losses">0</span></p>
+                        <p><strong>Égalités :</strong> <span id="draws">0</span></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-info">
+                <span>🔐 Session : <span id="apiUser">Utilisateur connecté</span></span>
+                <span>🎮 App : MatchDoom</span>
+                <span>📅 <span id="currentTime"></span></span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://localhost:8080"
+
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/me`);
+                const data = await response.json();
+
+                document.getElementById("pseudoDisplay").textContent = `Pseudo: ${data.pseudo}`;
+                document.getElementById("emailDisplay").textContent = data.email;
+                document.getElementById("games").textContent = data.total_games;
+                document.getElementById("wins").textContent = data.wins;
+                document.getElementById("losses").textContent = data.losses;
+                document.getElementById("draws").textContent = data.draws;
+                document.getElementById("apiUser").textContent = data.pseudo;
+            } catch (err) {
+                document.getElementById("profileContainer").innerHTML =
+                    `<div class="api-error">❌ Erreur de chargement du profil</div>`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadProfile);
+
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            // TODO : clear token/session si implémenté
+            window.location.href = "accueil.html";
+        });
+    </script>
+</body>
+</html>
