@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"fmt"
 	"time"
+	"os/exec"
 )
 
 var upgrader = websocket.Upgrader{
@@ -343,4 +344,16 @@ func IsBoardFull(board [3][3]string) bool {
 		}
 	}
 	return true
+}
+
+func InitGameServer(){
+	cmd := exec.Command("python", "game/launch.py")
+	err := cmd.Start()
+	
+	if err != nil {
+		log.Printf(" Error starting Python game server: %v", err)
+		return
+	}
+
+	log.Printf("Python game server started with PID %d", cmd.Process.Pid)
 }

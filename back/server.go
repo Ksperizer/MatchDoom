@@ -1,17 +1,21 @@
 package back
 
 import (
+
 	"MatchDoom/data"
 	"MatchDoom/handlers"
 	"html/template"
 	"log"
 	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
 func Server() error {
 	
 	InitGameServer()
+
+	data.InitDB()
 
 	r := mux.NewRouter()
 
@@ -193,3 +197,10 @@ func getGameStats() GameStats {
 	
 	return stats
 }
+
+func HandleGameWebSocket(w http.ResponseWriter, r *http.Request) {
+	HandleWebSocket(w, r)
+}
+
+
+

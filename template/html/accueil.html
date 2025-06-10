@@ -59,30 +59,3 @@
 </body>
 </html>
 
-<!-- 
-INSTRUCTIONS POUR L'INTÉGRATION DE VOTRE API :
-
-1. ZONE PRINCIPALE (HTML) :
-   - Remplacez le contenu de <div class="api-content" id="apiContainer">
-   - Ajoutez vos éléments HTML là où se trouve actuellement .welcome-screen
-
-2. APPELS API (JavaScript) :
-   - Modifiez la fonction loadAPIContent() dans script.js
-   - Ajoutez vos appels fetch() dans cette fonction
-   - Utilisez updateAPIContainer() pour mettre à jour le contenu
-
-3. CONFIGURATION API :
-   - Changez API_BASE_URL dans script.js
-   - Modifiez les headers si nécessaire dans getAPIHeaders()
-
-EXEMPLE D'INTÉGRATION :
-// Dans script.js, fonction loadAPIContent() :
-async function loadAPIContent() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/votre-endpoint`);
-        const data = await response.json();
-        updateAPIContainer(data);
-    } catch (error) {
-        showError(error.message);
-    }
-}
