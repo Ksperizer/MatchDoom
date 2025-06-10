@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-
+/* ===== RESET ET BASE ===== */
 * {
     margin: 0;
     padding: 0;
@@ -16,6 +15,7 @@ body {
     overflow-x: hidden;
 }
 
+/* ===== ARRIÈRE-PLAN ===== */
 .background-overlay {
     position: fixed;
     top: 0;
@@ -29,6 +29,7 @@ body {
     z-index: 0;
 }
 
+/* ===== CONTENEUR PRINCIPAL ===== */
 .main-container {
     width: 90%;
     max-width: 1200px;
@@ -40,6 +41,7 @@ body {
     z-index: 1;
 }
 
+/* ===== HEADER ===== */
 .app-header {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
@@ -61,8 +63,94 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
+.rocket-emoji {
+    font-size: 2rem;
+    animation: rocket-float 3s ease-in-out infinite;
+}
+
+@keyframes rocket-float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(2deg); }
+}
+
+/* ===== BOUTONS D'AUTHENTIFICATION AMÉLIORÉS ===== */
+.auth-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.auth-btn {
+    position: relative;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+.auth-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #8b5cf6);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+}
+
+.auth-btn.primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 
+        0 8px 32px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.auth-btn.secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #667eea;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.auth-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+}
+
+.auth-btn.primary:hover {
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+    box-shadow: 
+        0 12px 40px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.auth-btn.secondary:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #5a67d8;
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* ===== INDICATEUR DE STATUT ===== */
 .status-indicator {
     display: flex;
     align-items: center;
@@ -98,6 +186,7 @@ body {
     50% { opacity: 0.7; transform: scale(1.1); }
 }
 
+/* ===== FRAME PRINCIPALE ===== */
 .game-frame {
     flex: 1;
     background: rgba(255, 255, 255, 0.95);
@@ -155,7 +244,7 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* ZONE PRINCIPALE POUR VOTRE API */
+/* ===== CONTENU API ===== */
 .api-content {
     flex: 1;
     padding: 40px;
@@ -168,7 +257,6 @@ body {
     overflow: auto;
 }
 
-/* STYLES POUR LE CONTENU PAR DÉFAUT - À SUPPRIMER QUAND VOUS INTÉGREZ VOTRE API */
 .welcome-screen {
     text-align: center;
     max-width: 500px;
@@ -199,6 +287,80 @@ body {
     line-height: 1.6;
 }
 
+/* ===== BOUTON JOUER REDESIGNÉ ===== */
+.play-button {
+    position: relative;
+    margin-top: 25px;
+    padding: 16px 32px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: linear-gradient(135deg, #10b981, #059669, #047857);
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+    box-shadow: 
+        0 12px 40px rgba(16, 185, 129, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 0 1px rgba(16, 185, 129, 0.1);
+}
+
+.play-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+}
+
+.play-button:hover::before {
+    left: 100%;
+}
+
+.play-button:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 
+        0 20px 60px rgba(16, 185, 129, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(16, 185, 129, 0.2);
+}
+
+.play-button:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.play-button-text {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.play-icon {
+    font-size: 1.3rem;
+    animation: play-pulse 2s ease-in-out infinite;
+}
+
+@keyframes play-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ===== POINTS DE CHARGEMENT ===== */
 .loading-dots {
     display: flex;
     justify-content: center;
@@ -228,6 +390,7 @@ body {
     }
 }
 
+/* ===== FOOTER ===== */
 .app-footer {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(20px);
@@ -254,7 +417,7 @@ body {
     gap: 5px;
 }
 
-/* CLASSES UTILITAIRES POUR VOTRE API */
+/* ===== CLASSES UTILITAIRES POUR API ===== */
 .api-error {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
@@ -281,7 +444,7 @@ body {
     border-radius: 12px;
 }
 
-/* RESPONSIVE */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .main-container {
         width: 95%;
@@ -298,6 +461,17 @@ body {
     
     .app-header h1 {
         font-size: 1.8rem;
+    }
+    
+    .auth-controls {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+    
+    .auth-btn {
+        width: 100%;
+        justify-content: center;
     }
     
     .frame-header {
@@ -329,5 +503,10 @@ body {
     
     .welcome-icon {
         font-size: 3rem;
+    }
+    
+    .play-button {
+        padding: 14px 28px;
+        font-size: 1.1rem;
     }
 }

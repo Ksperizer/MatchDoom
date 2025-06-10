@@ -5,27 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application API Go</title>
     <link rel="stylesheet" href="../css/accueil.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="background-overlay"></div>
     
     <div class="main-container">
-        <!-- Header -->
+        <!-- Header avec titre et boutons d'authentification améliorés -->
         <header class="app-header">
-            <h1>🚀 Mon Application API Go</h1>
-            <div class="status-indicator">
-                <div class="status-dot" id="apiStatus"></div>
-                <span id="statusText">Initialisation...</span>
+            <h1>
+                <span class="rocket-emoji">🚀</span>
+                Mon Application API Go
+            </h1>
+            <div class="auth-controls">
+                <div class="status-indicator">
+                    <div class="status-dot" id="apiStatus"></div>
+                    <span id="statusText">Initialisation...</span>
+                </div>
+                <button class="auth-btn secondary" onclick="window.location.href='/connexion'">Connexion</button>
+                <button class="auth-btn primary" onclick="window.location.href='/inscription'">Inscription</button>
             </div>
         </header>
 
-        <!-- Cadre central pour votre API -->
+        <!-- Zone principale d'application -->
         <main class="game-frame">
             <div class="frame-header">
                 <h2>Zone d'Application</h2>
                 <div class="frame-controls">
-                    <button class="control-btn" id="refreshBtn">🔄</button>
-                    <button class="control-btn" id="settingsBtn">⚙️</button>
+                    <button class="control-btn" id="refreshBtn" title="Actualiser">🔄</button>
+                    <button class="control-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 </div>
             </div>
             
@@ -36,6 +44,14 @@
                     <div class="welcome-icon">🎮</div>
                     <h3>Prêt pour votre API Go</h3>
                     <p>Intégrez votre contenu dans la section #apiContainer</p>
+                    
+                    <button class="play-button" onclick="window.open('/game', '_blank')">
+                        <span class="play-button-text">
+                            <span class="play-icon">🎮</span>
+                            Jouer
+                        </span>
+                    </button>
+                    
                     <div class="loading-dots">
                         <span></span>
                         <span></span>
@@ -56,6 +72,6 @@
     </div>
 
     <script src="/template/script/script.js"></script>
+   
 </body>
 </html>
-
