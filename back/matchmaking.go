@@ -14,9 +14,7 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true // Allows all origins (to be secured in production)
-	},
+	CheckOrigin: func(r *http.Request) bool {return true },
 }
 
 type WSClient struct {
@@ -49,13 +47,16 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pythonURL := url.URL{Scheme: "ws", Host: "localhost:8081", Path: "/"}
-	pythonConn, _, err := websocket.DefaultDialer.Dial(pythonURL.String(), nil)
+	pythonWS := url.URL{Scheme: "ws", Host: "localhost:8081"}
+	pythonConn, _, err := websocket.DefaultDialer.Dial(pythonWS.String(), nil)
 	if err != nil {
 		log.Println("Erreur de connexion au serveur Python:", err)
+		clientConn.WriteMessage(websocket.TextMessage, []byte(`{"type":"error", "message":"Serveur Python injoignable"}`))
 		clientConn.Close()
 		return
 	}
+
+	log.Println("Proxy WebSocket actif client <-> Python")
 
 	go proxyWebSocket(clientConn, pythonConn)
 	go proxyWebSocket(pythonConn, clientConn)
@@ -77,6 +78,8 @@ func proxyWebSocket(src, dest *websocket.Conn) {
 		}
 	}
 }
+
+
 func (c *WSClient) ReadPump() {
 	defer func() {
 		c.Conn.Close()

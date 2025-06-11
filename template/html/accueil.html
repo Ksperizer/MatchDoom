@@ -1,64 +1,61 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Application API Go</title>
-    <link rel="stylesheet" href="../css/accueil.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/accueil.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <script src="/template/script/script.js"></script>
+    <script src="/template/script/connexion.js"></script>
 </head>
 <body>
     <div class="background-overlay"></div>
-    
+
     <div class="main-container">
-        <!-- Header avec titre et boutons d'authentification améliorés -->
+        <!-- ===== HEADER ===== -->
         <header class="app-header">
-            <h1>
-                <span class="rocket-emoji">🚀</span>
-                Mon Application API Go
-            </h1>
+            <h1><span class="rocket-emoji">🚀</span> Mon Application API Go</h1>
             <div class="auth-controls">
                 <div class="status-indicator">
                     <div class="status-dot" id="apiStatus"></div>
                     <span id="statusText">Initialisation...</span>
                 </div>
-                <button class="auth-btn secondary" onclick="window.location.href='/connexion'">Connexion</button>
-                <button class="auth-btn primary" onclick="window.location.href='/inscription'">Inscription</button>
+                <button id="authBtn" class="auth-btn secondary">Connexion / Inscription</button>
+                <button id="profilBtn" class="auth-btn secondary hidden">Mon Profil</button>
             </div>
         </header>
 
-        <!-- Zone principale d'application -->
+        <!-- ===== ZONE D'APPLICATION ===== -->
         <main class="game-frame">
             <div class="frame-header">
                 <h2>Zone d'Application</h2>
                 <div class="frame-controls">
-                    <button class="control-btn" id="refreshBtn" title="Actualiser">🔄</button>
-                    <button class="control-btn" id="settingsBtn" title="Paramètres">⚙️</button>
+                    <button class="control-btn" id="refreshBtn">🔄</button>
+                    <button class="control-btn" id="settingsBtn">⚙️</button>
                 </div>
             </div>
-            
+
             <div class="api-content" id="apiContainer">
                 <div class="welcome-screen">
                     <div class="welcome-icon">🎮</div>
                     <h3>Prêt pour votre API Go</h3>
                     <p>Intégrez votre contenu dans la section #apiContainer</p>
-                    
-                    <button class="playButton" class="play-button" onclick="window.open('/game', '_blank')">
+
+                    <button id="playButton" class="play-button">
                         <span class="play-button-text">
-                            <span class="play-icon"></span>Jouer
+                            <span class="play-icon">▶</span> Jouer
                         </span>
                     </button>
-                    
+
                     <div class="loading-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span></span><span></span><span></span>
                     </div>
                 </div>
             </div>
         </main>
 
-        <!-- Footer -->
+        <!-- ===== FOOTER ===== -->
         <footer class="app-footer">
             <div class="footer-info">
                 <span>🌐 API: <span id="apiUrl">localhost:8080</span></span>
@@ -68,7 +65,34 @@
         </footer>
     </div>
 
-    <script src="/template/script/script.js"></script>
-   
+    <!-- ===== MODAL POPUP LOGIN ===== -->
+    <div id="authModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+
+            <div class="auth-switch">
+                <button id="showLogin">Connexion</button>
+                <button id="showRegister">Inscription</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <input type="text" name="pseudo" placeholder="Pseudo" required />
+                <input type="password" name="password" placeholder="Mot de passe" required />
+                <button type="submit">Se connecter</button>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+                <input type="text" name="pseudo" placeholder="Pseudo" required />
+                <input type="password" name="password" placeholder="Mot de passe" required />
+                <input type="email" name="email" placeholder="Email" required />
+                <button type="submit">S'inscrire</button>
+            </form>
+
+            <div id="authMessage"></div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+ 
 </body>
 </html>

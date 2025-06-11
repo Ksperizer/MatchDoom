@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -26,12 +27,11 @@ func Server() error {
 	setupAPIRoutes(r)
 
 	// WebSocket Game (client Python ou JS)
-	//r.HandleFunc("/game/ws", HandleGameWebSocket)
+	r.HandleFunc("/game/ws", HandleWebSocket)
 
 	port := "8080"
 	log.Printf("Server running: http://localhost:%s", port)
-	log.Printf("WebSocket Python Game: ws://localhost:%s/game/ws", port)
-	log.Printf("Web interface: http://localhost:%s/accueil", port)
+	log.Printf("WebSocket Python Game: ws://localhost:8081/game/ws")
 	log.Println("Ready!")
 
 	return http.ListenAndServe(":"+port, r)
@@ -47,6 +47,7 @@ func setupPageRoutes(r *mux.Router) {
 	r.HandleFunc("/accueil", AccueilHandle).Methods("GET")
 	r.HandleFunc("/connexion", ConnexionHandle).Methods("GET")
 	r.HandleFunc("/profil", ProfilHandle).Methods("GET")
+	//r.HandleFunc("/game", GameHandle).Methods("GET")
 }
 
 func setupAPIRoutes(r *mux.Router) {
@@ -74,6 +75,13 @@ func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stats := getGameStats()
+
+	wsURL := os.Getenv("PY_WS_URL")
+	if wsURL == "" {
+		wsURL = "ws://localhost:8081"
+	}
+
+
 	data := struct {
 		Title         string
 		TotalPlayers  int
@@ -85,7 +93,7 @@ func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 		TotalPlayers:  stats.TotalPlayers,
 		ActiveMatches: stats.ActiveMatches,
 		TotalMatches:  stats.TotalMatches,
-		PythonGameURL: "Pour jouer: lancez le client Python et connectez-vous à ws://localhost:8080/game/ws",
+		PythonGameURL: "Pour jouer: lancez le client Python et connectez-vous à ws: ",
 	}
 
 	tmpl.Execute(w, data)

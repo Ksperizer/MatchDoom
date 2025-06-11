@@ -54,7 +54,7 @@ async def handle_player(websocket, path):
 
 # start the server
 async def main():
-    async with websockets.serve(handle_player, "localhost", 8081):
+    async with websockets.serve(handle_player, "0.0.0.0", 8081):
         logging.info("Serveur WebSocket démarré sur ws://localhost:8081")
         await asyncio.Future() # run forever
 
