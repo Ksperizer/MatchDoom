@@ -1,67 +1,104 @@
- // Fonction pour mettre à jour l'heure
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('fr-FR');
-            const timeElement = document.getElementById('currentTime');
-            if (timeElement) {
-                timeElement.textContent = timeString;
-            }
-        }
+document.addEventListener("DOMContentLoaded", () => {
+// real time 
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocateTimeString("fr-FR")
+        const timeElement = document.getElementById("currentTime");
+        if (timeElement) {
+            timeElement.textContent = timeString;
+        }   
+    }
 
-        // Animation du statut de connexion
-        function updateConnectionStatus() {
-            const statusDot = document.getElementById('apiStatus');
-            const statusText = document.getElementById('statusText');
-            const connectionStatus = document.getElementById('connectionStatus');
-            
-            if (!statusDot || !statusText || !connectionStatus) return;
-            
-            const statuses = [
-                { class: '', text: 'Initialisation...', status: 'En attente' },
-                { class: 'connected', text: 'Connecté', status: 'Actif' },
-                { class: 'error', text: 'Erreur', status: 'Hors ligne' }
-            ];
-            
-            let currentStatus = 0;
-            
-            setInterval(() => {
-                currentStatus = (currentStatus + 1) % statuses.length;
-                const status = statuses[currentStatus];
-                
-                statusDot.className = `status-dot ${status.class}`;
-                statusText.textContent = status.text;
-                connectionStatus.textContent = status.status;
-            }, 3000);
-        }
+    updateTime(); // initial call
+    setInterval(updateTime, 1000); // update every second
 
-        // Interactions avec les boutons de contrôle
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mettre à jour l'heure immédiatement et ensuite chaque seconde
-            updateTime();
-            setInterval(updateTime, 1000);
+// Animate connexion status
+    function updateConnectionStatus() {
+        const statusDot = document.getELementById('apiStatus');
+        const statusText = document.getElementById('statusText');
+        const connectionStatus = document.getElementById('connectionStatus');
+
+        if (!statusDot || !statusText || !connectionStatus) return;
+
+        const status = [
+            { class: '', text: 'initialisation...', status: 'En attente' },
+            { class: 'connected', text: 'Connecté', status: 'Actif' },
+            { class: 'Error', text: 'Erreur', status: 'Hors ligne' }
+        ];
+
+        let currentStatus = 0;
+
+        setInterval(() => {
+            currentStatus = (currentStatus + 1) % status.length;
+            const status = statuses[currentStatus];
             
-            // Démarrer l'animation du statut
-            updateConnectionStatus();
-            
-            // Bouton refresh
-            const refreshBtn = document.getElementById('refreshBtn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', function() {
-                    this.style.transform = 'rotate(360deg)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                        // Ici vous pouvez ajouter la logique de refresh de votre API
-                        console.log('Actualisation...');
-                    }, 600);
-                });
-            }
-            
-            // Bouton settings
-            const settingsBtn = document.getElementById('settingsBtn');
-            if (settingsBtn) {
-                settingsBtn.addEventListener('click', function() {
-                    console.log('Ouverture des paramètres...');
-                    // Ici vous pouvez ajouter la logique des paramètres
-                });
-            }
+            statusDot.className = `status-dot ${status.class}`;
+            statusText.textContent = status.text;
+            connectionStatus.textContent = status.status;
+        }, 3000); 
+    }
+
+    updateConnectionStatus();
+
+
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            refreshBtn.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                refreshBtn.style.transform = '';
+                console.log('Actualisation...');
+            }, 600);
         });
+    }
+
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            console.log('Paramètres');
+        });
+    }
+
+    const playButton = document.getElementById('playButton');
+    if (playButton) {
+        playButton.addEventListener('click', () => {
+            const pseudo = localStorage.getItem("pseudo");
+
+            if (!pseudo) {
+                alert("Vous devez vous connecter pour jouer !");
+                window.location.href = "/connexion";
+                return;
+            }
+
+            const ws = new WebSocket("ws://localhost:8080/game/ws");
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: "join", pseudo }));
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === "queue") {
+                    alert(data.message + "\nPosition dans la file d'attente : " + data.position);
+                }
+
+                if (data.type === "game_start") {
+                    alert(`Le jeu commence contre ${data.opponent} !`);
+                    // Ici tu peux rediriger ou afficher une interface de jeu
+                    localStorage.setItem("game_id", data.game_id);
+                    localStorage.setItem("your_turn", data.your_turn);
+                    localStorage.setItem("opponent", data.opponent);
+                    localStorage.setItem("symbol", data.symbol);
+
+                    window.location.href = "http://localhost:3000"; // a moofier selon client python 
+                }
+            };
+
+            ws.onerror = (e) => {
+                alert("Erreur WebSocket : " + e.message);
+                console.error("WebSocket error:", e);
+            };
+        });
+    }
+});

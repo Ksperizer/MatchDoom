@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion / Inscription - MatchDoom</title>
+    <link rel="stylesheet" href="../css/connexion.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/connexion.js" defer></script>
+</head>
+<body>
+<div class="background-overlay"></div>
+<div class="main-container">
+    <header class="app-header">
+        <h1><span class="rocket-emoji">🚀</span> MatchDoom</h1>
+    </header>
+
+    <main class="game-frame">
+        <div class="frame-header">
+            <h2>Bienvenue !</h2>
+        </div>
+
+        <div class="api-content">
+            <div id="authMessage" class="api-message"></div>
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="showLogin">Connexion</button>
+                <button class="tab-btn" id="showRegister">Inscription</button>
+            </div>
+
+            <div id="login" class="tab-content active">
+                <h3>Connexion</h3>
+                <form id="loginForm">
+                    <input type="text" placeholder="Nom d'utilisateur" required>
+                    <input type="password" placeholder="Mot de passe" required>
+                    <button type="submit" class="auth-btn primary">Se connecter</button>
+                </form>
+            </div>
+
+            <div id="register" class="tab-content">
+                <h3>Inscription</h3>
+                <form id="registerForm">
+                    <input type="text" placeholder="Nom d'utilisateur" required>
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Mot de passe" required>
+                    <button type="submit" class="auth-btn secondary">S'inscrire</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-info">
+            <span>🌐 API: <span id="apiUrl">localhost:8080</span></span>
+            <span>⏰ <span id="currentTime"></span></span>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

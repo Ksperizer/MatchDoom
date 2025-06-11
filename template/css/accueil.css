@@ -510,3 +510,25 @@ body {
         font-size: 1.1rem;
     }
 }
+
+.api-message {
+    margin-top: 20px;
+    text-align: center;
+    font-weight: 500;
+    padding: 15px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.api-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
+
+.api-error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #ef4444;
+}
