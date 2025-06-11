@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     localStorage.setItem("opponent", data.opponent);
                     localStorage.setItem("symbol", data.symbol);
 
-                    window.location.href = "http://localhost:3000"; // a moofier selon client python 
+                    new WebSocket("ws://localhost:8081"); // game python
                 }
             };
 

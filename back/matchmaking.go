@@ -2,13 +2,15 @@ package back
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"sync"
-	"github.com/gorilla/websocket"
-	"fmt"
-	"time"
+	"net/url"
 	"os/exec"
+	"sync"
+	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -41,21 +43,40 @@ func init() {
 }
 
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+	clientConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("WebSocket upgrade error: %v", err)
+		log.Println("WebSocket upgrade error:", err)
 		return
 	}
 
-	client := &WSClient{
-		Conn: conn,
-		Send: make(chan []byte, 256),
+	pythonURL := url.URL{Scheme: "ws", Host: "localhost:8081", Path: "/"}
+	pythonConn, _, err := websocket.DefaultDialer.Dial(pythonURL.String(), nil)
+	if err != nil {
+		log.Println("Erreur de connexion au serveur Python:", err)
+		clientConn.Close()
+		return
 	}
 
-	go client.WritePump()
-	go client.ReadPump()
+	go proxyWebSocket(clientConn, pythonConn)
+	go proxyWebSocket(pythonConn, clientConn)
 }
 
+func proxyWebSocket(src, dest *websocket.Conn) {
+	defer src.Close()
+	defer dest.Close()
+
+	for {
+		msgType, msg, err := src.ReadMessage()
+		if err != nil {
+			log.Println("Erreur lecture WebSocket:", err)
+			break
+		}
+		if err := dest.WriteMessage(msgType, msg); err != nil {
+			log.Println("Erreur écriture WebSocket:", err)
+			break
+		}
+	}
+}
 func (c *WSClient) ReadPump() {
 	defer func() {
 		c.Conn.Close()
