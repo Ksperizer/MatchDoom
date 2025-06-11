@@ -347,13 +347,21 @@ func IsBoardFull(board [3][3]string) bool {
 }
 
 func InitGameServer(){
-	cmd := exec.Command("python", "game/launch.py")
-	err := cmd.Start()
-	
-	if err != nil {
-		log.Printf(" Error starting Python game server: %v", err)
-		return
+	// execute python for launch game
+	launchCmd := exec.Command("python", "game/launch.py")
+	err1 := launchCmd.Start()
+	if err1 != nil {
+		log.Printf("Erreur de lancement du serveur Python: %v", err1)
+	}else {
+		log.Printf("launch.py lancer avec PID %d", launchCmd.Process.Pid)
 	}
 
-	log.Printf("Python game server started with PID %d", cmd.Process.Pid)
+	// execute python for launch websocket
+	wsCmd := exec.Command("python", "game/websocket.py")
+	err2 := wsCmd.Start()
+	if err2 != nil {
+		log.Printf("Erreur de lancement du serveur WebSocket: %v", err2)
+	} else {
+		log.Printf("websocket.py lancer avec PID %d", wsCmd.Process.Pid)
+	}
 }
