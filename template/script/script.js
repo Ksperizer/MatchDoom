@@ -52,7 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const authBtn = document.getElementById('authBtn');
     const profilBtn = document.getElementById('profilBtn');
 
-    const modal = document.createElement('div');
+    const modal = document.getElementById("authModal");
+
     modal.className = 'modal hidden';
     modal.innerHTML = `
         <div class="modal-content">

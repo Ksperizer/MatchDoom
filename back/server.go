@@ -13,7 +13,7 @@ import (
 
 func Server() error {
 	InitGameServer()
-	data.InitDB()
+
 
 	r := mux.NewRouter()
 
@@ -93,7 +93,8 @@ func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 		TotalPlayers:  stats.TotalPlayers,
 		ActiveMatches: stats.ActiveMatches,
 		TotalMatches:  stats.TotalMatches,
-		PythonGameURL: "Pour jouer: lancez le client Python et connectez-vous à ws: ",
+		PythonGameURL: "Pour jouer: lancez le client Python et connectez-vous à " + wsURL,
+
 	}
 
 	tmpl.Execute(w, data)
@@ -133,8 +134,21 @@ type GameStats struct {
 
 func getGameStats() GameStats {
 	var stats GameStats
-	data.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&stats.TotalPlayers)
-	data.DB.QueryRow("SELECT COUNT(*) FROM matches WHERE is_finished = FALSE").Scan(&stats.ActiveMatches)
-	data.DB.QueryRow("SELECT COUNT(*) FROM matches").Scan(&stats.TotalMatches)
+
+	err := data.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&stats.TotalPlayers)
+	if err != nil {
+		log.Println("Erreur getGameStats (users):", err)
+	}
+
+	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches WHERE is_finished = FALSE").Scan(&stats.ActiveMatches)
+	if err != nil {
+		log.Println("Erreur getGameStats (active matches):", err)
+	}
+
+	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches").Scan(&stats.TotalMatches)
+	if err != nil {
+		log.Println("Erreur getGameStats (total matches):", err)
+	}
+
 	return stats
 }

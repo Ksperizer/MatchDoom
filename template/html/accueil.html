@@ -66,33 +66,27 @@
     </div>
 
     <!-- ===== MODAL POPUP LOGIN ===== -->
-    <div id="authModal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-btn" id="closeModal">&times;</span>
-
-            <div class="auth-switch">
-                <button id="showLogin">Connexion</button>
-                <button id="showRegister">Inscription</button>
-            </div>
-
-            <form id="loginForm" class="auth-form">
-                <input type="text" name="pseudo" placeholder="Pseudo" required />
-                <input type="password" name="password" placeholder="Mot de passe" required />
-                <button type="submit">Se connecter</button>
-            </form>
-
-            <form id="registerForm" class="auth-form hidden">
-                <input type="text" name="pseudo" placeholder="Pseudo" required />
-                <input type="password" name="password" placeholder="Mot de passe" required />
-                <input type="email" name="email" placeholder="Email" required />
-                <button type="submit">S'inscrire</button>
-            </form>
-
-            <div id="authMessage"></div>
+    <div class="modal hidden" id="authModal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <div class="tab">
+            <button id="showLogin">Connexion</button>
+            <button id="showRegister">Inscription</button>
         </div>
+        <form id="loginForm" class="auth-form">
+            <input type="text" name="pseudo" placeholder="Pseudo" required>
+            <input type="password" name="password" placeholder="Mot de passe" required>
+            <button type="submit">Se connecter</button>
+        </form>
+        <form id="registerForm" class="auth-form hidden">
+            <input type="text" name="pseudo" placeholder="Pseudo" required>
+            <input type="password" name="password" placeholder="Mot de passe" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <button type="submit">S'inscrire</button>
+        </form>
+        <div id="authMessage" class="api-message"></div>
     </div>
-
-    <!-- SCRIPTS -->
+</div>
  
 </body>
 </html>
