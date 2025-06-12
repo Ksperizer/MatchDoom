@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     updateConnectionStatus();
 
-    // 🔁 Refresh icon rotation
+    // Refresh icon rotation
     const refreshBtn = document.getElementById('refreshBtn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
