@@ -3,6 +3,7 @@ package back
 import (
 	"MatchDoom/data"
 	"MatchDoom/handlers"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -53,18 +54,46 @@ func setupPageRoutes(r *mux.Router) {
 func setupAPIRoutes(r *mux.Router) {
 	api := r.PathPrefix("/api").Subrouter()
 
+	// Authe
 	api.HandleFunc("/register", handlers.RegisterUser).Methods("POST")
 	api.HandleFunc("/login", handlers.LoginUser).Methods("POST")
+	api.HandleFunc("/profile", handlers.GetProfile).Methods("GET")
+
+	// Stats
 	api.HandleFunc("/update-stats", handlers.UpdateStats).Methods("POST")
+	api.HandleFunc("/leaderboard", handlers.GetLeaderboard).Methods("GET")
+	api.HandleFunc("/stats", handlers.GetStats).Methods("GET")
+
+	// Queue and Matchmaking
+	api.HandleFunc("/queue/join", handlers.JoinQueue).Methods("POST")
+	api.HandleFunc("/matches/active", handlers.GetActiveMatches).Methods("GET")
+
+	// WebSocket
 	api.HandleFunc("/ws", HandleWebGameWS).Methods("GET")
 
+	// Health check amélioré
 	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		stats, err := data.GetGameStats()
+		if err != nil {
+			http.Error(w, "Erreur base de données", http.StatusInternalServerError)
+			return
+		}
+
+		response := map[string]interface{}{
+			"status":            "ok",
+			"database":          "connected",
+			"python_game":       "ws://localhost:8081/game/ws",
+			"total_users":       stats["total_users"],
+			"active_matches":    stats["active_matches"],
+			"total_matches":     stats["total_matches"],
+			"queue_count":       stats["queue_count"],
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok","python_game":"ws://localhost:8080/game/ws"}`))
+		json.NewEncoder(w).Encode(response)
 	}).Methods("GET")
 }
-
 // ===== Pages HTML =====
 func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("template/html/accueil.html")
@@ -74,15 +103,23 @@ func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats := getGameStats()
+	// get stats from the database
+	stats, err := data.GetGameStats()
+	if err != nil {
+		log.Printf("Error getting stats: %v", err)
+		stats = map[string]int{
+			"total_users":    0,
+			"active_matches": 0,
+			"total_matches":  0,
+		}
+	}
 
 	wsURL := os.Getenv("PY_WS_URL")
 	if wsURL == "" {
 		wsURL = "ws://localhost:8081"
 	}
 
-
-	data := struct {
+	templateData := struct {
 		Title         string
 		TotalPlayers  int
 		ActiveMatches int
@@ -90,14 +127,13 @@ func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 		PythonGameURL string
 	}{
 		Title:         "MatchDoom - Tic Tac Toe Online",
-		TotalPlayers:  stats.TotalPlayers,
-		ActiveMatches: stats.ActiveMatches,
-		TotalMatches:  stats.TotalMatches,
-		PythonGameURL: "Pour jouer: lancez le client Python et connectez-vous à " + wsURL,
-
+		TotalPlayers:  stats["total_users"],
+		ActiveMatches: stats["active_matches"],
+		TotalMatches:  stats["total_matches"],
+		PythonGameURL: "Pour jouer: connectez-vous à " + wsURL,
 	}
 
-	tmpl.Execute(w, data)
+	tmpl.Execute(w, templateData)
 }
 
 func ConnexionHandle(w http.ResponseWriter, r *http.Request) {
@@ -120,7 +156,6 @@ func ProfilHandle(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-// ===== WebSocket =====
 func HandleWebGameWS(w http.ResponseWriter, r *http.Request) {
 	HandleWebSocket(w, r)
 }
@@ -132,23 +167,23 @@ type GameStats struct {
 	TotalMatches  int
 }
 
-func getGameStats() GameStats {
-	var stats GameStats
+// func getGameStats() GameStats {
+// 	var stats GameStats
 
-	err := data.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&stats.TotalPlayers)
-	if err != nil {
-		log.Println("Erreur getGameStats (users):", err)
-	}
+// 	err := data.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&stats.TotalPlayers)
+// 	if err != nil {
+// 		log.Println("Erreur getGameStats (users):", err)
+// 	}
 
-	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches WHERE is_finished = FALSE").Scan(&stats.ActiveMatches)
-	if err != nil {
-		log.Println("Erreur getGameStats (active matches):", err)
-	}
+// 	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches WHERE is_finished = FALSE").Scan(&stats.ActiveMatches)
+// 	if err != nil {
+// 		log.Println("Erreur getGameStats (active matches):", err)
+// 	}
 
-	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches").Scan(&stats.TotalMatches)
-	if err != nil {
-		log.Println("Erreur getGameStats (total matches):", err)
-	}
+// 	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches").Scan(&stats.TotalMatches)
+// 	if err != nil {
+// 		log.Println("Erreur getGameStats (total matches):", err)
+// 	}
 
-	return stats
-}
+// 	return stats
+// }

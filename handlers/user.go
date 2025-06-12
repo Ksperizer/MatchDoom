@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,6 +17,18 @@ type RegisterRequest struct {
 	Email    string `json:"email"`
 }
 
+type LoginRequest struct {
+	Pseudo  string `json:"pseudo"`
+	Password string `json:"password"`
+}
+
+type UpdateStatsRequest struct {
+	Pseudo string `json:"pseudo"`
+	Result string `json:"result"` // "win", "loss", or "draw"
+}
+
+
+
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -23,21 +36,34 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validation basique
+	// validate required fields
 	if req.Pseudo == "" || req.Password == "" || req.Email == "" {
 		http.Error(w, "Tous les champs sont requis", http.StatusBadRequest)
 		return
 	}
 
+	// check if pseudo and email are already used
+	if existingUser, _ := data.GetUserByPseudo(req.Pseudo); existingUser != nil {
+		http.Error(w, "Ce pseudo est déjà utilisé", http.StatusConflict)
+		return
+	}
+
+	if existingUser, _ := data.GetUserByEmail(req.Email); existingUser != nil {
+		http.Error(w, "Cet email est déjà utilisé", http.StatusConflict)
+		return
+	}
+
+	// Hasher password 
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Erreur lors du hash", http.StatusInternalServerError)
 		return
 	}
 
-	_, err = data.DB.Exec("INSERT INTO users (pseudo, password_hash, email) VALUES (?, ?, ?)", req.Pseudo, hash, req.Email)
+	// Create user in the database
+	err = data.CreateUser(req.Pseudo, string(hash), req.Email)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Erreur SQL : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur création utilisateur: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -45,80 +71,65 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Utilisateur créé avec succès",
+		"pseudo":  req.Pseudo,
 	})
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Pseudo   string `json:"pseudo"`
-		Password string `json:"password"`
-	}
-	
+	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "JSON invalide", http.StatusBadRequest)
 		return
 	}
 
-	var hash string
-	var stats struct {
-		TotalGames int
-		Wins       int
-		Losses     int
-		Draws      int
-	}
-
-	err := data.DB.QueryRow(`SELECT password_hash, total_games, wins, losses, draws FROM users WHERE pseudo = ?`, req.Pseudo).Scan(&hash, &stats.TotalGames, &stats.Wins, &stats.Losses, &stats.Draws)
+	// Récupérer l'utilisateur
+	user, err := data.GetUserByPseudo(req.Pseudo)
 	if err != nil {
 		http.Error(w, "Pseudo ou mot de passe incorrect", http.StatusUnauthorized)
 		return
 	}
 
 	// Vérifier le mot de passe
-	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		http.Error(w, "Pseudo ou mot de passe incorrect", http.StatusUnauthorized)
 		return
 	}
 
+	// Réponse avec les statistiques
 	response := map[string]interface{}{
 		"message":     "Connexion réussie",
-		"pseudo":      req.Pseudo,
-		"total_games": stats.TotalGames,
-		"wins":        stats.Wins,
-		"losses":      stats.Losses,
-		"draws":       stats.Draws,
+		"pseudo":      user.Pseudo,
+		"email":       user.Email,
+		"user_id":     user.ID,
+		"total_games": user.TotalGames,
+		"wins":        user.Wins,
+		"losses":      user.Losses,
+		"draws":       user.Draws,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
+// UpdateStats update stats for a user
 func UpdateStats(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Pseudo string `json:"pseudo"`
-		Result string `json:"result"` // "win", "loss", or "draw"
-	}
-	
+	var req UpdateStatsRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "JSON invalide", http.StatusBadRequest)
 		return
 	}
 
-	var query string
-	switch req.Result {
-	case "win":
-		query = `UPDATE users SET wins = wins + 1, total_games = total_games + 1 WHERE pseudo = ?`
-	case "loss":
-		query = `UPDATE users SET losses = losses + 1, total_games = total_games + 1 WHERE pseudo = ?`
-	case "draw":
-		query = `UPDATE users SET draws = draws + 1, total_games = total_games + 1 WHERE pseudo = ?`
-	default:
-		http.Error(w, "Type de résultat invalide (win/loss/draw)", http.StatusBadRequest)
+	// Vérifier que l'utilisateur existe
+	user, err := data.GetUserByPseudo(req.Pseudo)
+	if err != nil {
+		http.Error(w, "Utilisateur non trouvé", http.StatusNotFound)
 		return
 	}
 
-	_, err := data.DB.Exec(query, req.Pseudo)
+	// Mettre à jour les statistiques
+	err = data.UpdateUserStats(user.ID, req.Result)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Erreur SQL : %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Erreur mise à jour stats: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -128,6 +139,145 @@ func UpdateStats(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func GetProfile(w http.ResponseWriter, r *http.Request) {
+	pseudo := r.URL.Query().Get("pseudo")
+	if pseudo == "" {
+		http.Error(w, "Pseudo requis", http.StatusBadRequest)
+		return
+	}
+
+	user, err := data.GetUserByPseudo(pseudo)
+	if err != nil {
+		http.Error(w, "Utilisateur non trouvé", http.StatusNotFound)
+		return
+	}
+
+	response := map[string]interface{}{
+		"id": 			user.ID,
+		"pseudo": 		user.Pseudo,
+		"email": 		user.Email,
+		"created_at":	user.CreatedAt,
+		"total_games":  user.TotalGames,
+		"wins":         user.Wins,
+		"losses":       user.Losses,
+		"draws":        user.Draws,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// GetLeaderboard retrieves the top 10 users based on their ranking
+func GetLeaderboard(w http.ResponseWriter, r *http.Request) {
+	users, err := data.GetUserRanking(10)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Erreur récupération classement: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	var leaderboard []map[string]interface{}
+	for i, user := range users {
+		winRate := 0.0
+		if user.TotalGames > 0 {
+			winRate = float64(user.Wins) / float64(user.TotalGames) * 100
+		}
+
+		leaderboard = append(leaderboard, map[string]interface{}{
+			"rank":        i + 1,
+			"pseudo":      user.Pseudo,
+			"total_games": user.TotalGames,
+			"wins":        user.Wins,
+			"losses":      user.Losses,
+			"draws":       user.Draws,
+			"win_rate":    fmt.Sprintf("%.1f%%", winRate),
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"leaderboard": leaderboard,
+		"total_players": len(leaderboard),
+	})
+}
+
+
+func GetStats(w http.ResponseWriter, r *http.Request){
+	stats, err := data.GetGameStats()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Erreur récupération statistiques: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(stats)
+}
+
+
+func JoinQueue(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Pseudo string `json:"pseudo"`
+		IP    string  `json:"ip"`
+		Port  uint    `json:"port"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "JSON invalide", http.StatusBadRequest)
+		return
+	}
+
+	_, err := data.GetUserByPseudo(req.Pseudo)
+	if err != nil {
+		http.Error(w, "Utilisateur non trouvé", http.StatusNotFound)
+		return
+	}
+
+	err = data.AddToQueue(req.IP, req.Port, req.Pseudo)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Erreur ajout à la file d'attente: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	count, _ := data.GetQueueCount()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Vous avez rejoint la file d'attente",
+		"position": count,
+	})
+}
+
+
+func GetActiveMatches(w http.ResponseWriter, r *http.Request) {
+	matches, err := data.GetActiveMatches()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Erreur récupération parties: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"active_matches": matches,
+		"count":         len(matches),
+	})
+}
+
+func CreateTestData(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := data.PopulateTestData()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Erreur création données test: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Données de test créées avec succès",
+	})
+}
 
 func GenerateID() string {
 	return fmt.Sprintf("web_client_%d", time.Now().UnixNano())

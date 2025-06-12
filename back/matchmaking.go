@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"os/exec"
 	"sync"
 	"time"
@@ -372,20 +373,39 @@ func IsBoardFull(board [3][3]string) bool {
 
 func InitGameServer(){
 	// execute python for launch game
-	launchCmd := exec.Command("python", "game/launch.py")
-	err1 := launchCmd.Start()
-	if err1 != nil {
-		log.Printf("Erreur de lancement du serveur Python: %v", err1)
-	}else {
-		log.Printf("launch.py lancer avec PID %d", launchCmd.Process.Pid)
+	log.Println("Lancement du serveur Python pour le jeu...")
+
+	if _, err := os.Stat("game/websocket.py"); os.IsNotExist(err) {
+		log.Fatal("Fichier /game/websocket.py non trouvé")
 	}
 
-	// execute python for launch websocket
 	wsCmd := exec.Command("python", "game/websocket.py")
-	err2 := wsCmd.Start()
-	if err2 != nil {
-		log.Printf("Erreur de lancement du serveur WebSocket: %v", err2)
+	wsCmd.Stdout = os.Stdout
+	wsCmd.Stderr = os.Stderr
+
+	err := wsCmd.Start()
+	if err != nil {
+		log.Fatalf("Erreur lors du lancement du serveur Python: %v", err)
+
+		wsCmd = exec.Command("python", "game/websocket.py")
+		wsCmd.Stdout = os.Stdout
+		wsCmd.Stderr = os.Stderr
+		err = wsCmd.Start()
+		if err != nil {
+			log.Fatal("Impossible de lancer le serveur websocket.py:", err)
+		}
+	}
+
+	log.Printf("websocket.py lancé avec PID %d", wsCmd.Process.Pid)
+
+	time.Sleep(2 * time.Second) // cooldown python server ready 
+
+	pythonWS := url.URL{Scheme: "ws", Host: "localhost:8081"}
+	testConn, _, err := websocket.DefaultDialer.Dial(pythonWS.String(), nil)
+	if err != nil {
+		log.Printf(" Serveur Python WebSocket injoignable : %v", err)
 	} else {
-		log.Printf("websocket.py lancer avec PID %d", wsCmd.Process.Pid)
+		testConn.Close()
+		log.Println("Connexion au serveur OK")
 	}
 }

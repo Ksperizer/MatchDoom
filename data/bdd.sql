@@ -1,48 +1,46 @@
--- Table: users
 CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    pseudo VARCHAR(55) UNIQUE NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pseudo VARCHAR(55) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Stats
-    total_games INT DEFAULT 0,
-    wins INT DEFAULT 0,
-    losses INT DEFAULT 0,
-    draws INT DEFAULT 0
+    total_games INT UNSIGNED DEFAULT 0,
+    wins INT UNSIGNED DEFAULT 0,
+    losses INT UNSIGNED DEFAULT 0,
+    draws INT UNSIGNED DEFAULT 0
 );
 
 -- Table: queue
 CREATE TABLE queue (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     ip VARCHAR(55) NOT NULL,
-    port INT NOT NULL,
+    port INT UNSIGNED NOT NULL,
     pseudo VARCHAR(55) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table: matches
 CREATE TABLE matches (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    player1_id INT NOT NULL,
-    player2_id INT NOT NULL,
-    board TEXT DEFAULT '',
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    player1_id INT UNSIGNED NOT NULL,
+    player2_id INT UNSIGNED NOT NULL,
+    board TEXT,
     is_finished BOOLEAN DEFAULT FALSE,
     winner ENUM('player1', 'player2', 'draw') DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (player1_id) REFERENCES users(id),
-    FOREIGN KEY (player2_id) REFERENCES users(id)
+    FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Table: moves
 CREATE TABLE moves (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    match_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    match_id INT UNSIGNED NOT NULL,
     player ENUM('player1', 'player2') NOT NULL,
-    position INT NOT NULL, -- 0-8 for 3x3 board
+    position INT NOT NULL, -- 0-8 pour un plateau 3x3
     played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (match_id) REFERENCES matches(id)
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 );

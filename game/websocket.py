@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 connected_players = []
 
-async def handle_player(websocket, path):
+async def handle_player(websocket):
     try: 
         logging.info("Nouvelle connexion")
 
