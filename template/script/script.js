@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTime();
     setInterval(updateTime, 1000);
 
-    // 🔄 Animate status connection (mock)
+    // Animate status connection 
     function updateConnectionStatus() {
         const statusDot = document.getElementById('apiStatus');
         const statusText = document.getElementById('statusText');
@@ -97,18 +97,25 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("loginForm").onsubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+
         const res = await fetch("/api/login", {
             method: "POST",
             body: JSON.stringify(Object.fromEntries(formData)),
             headers: { "Content-Type": "application/json" }
         });
-        const result = await res.json();
-        document.getElementById("authMessage").textContent = result.message;
+
+        const messageBox = document.getElementById("authMessage");
+
         if (res.ok) {
-            localStorage.setItem("pseudo", formData.get("pseudo"));
-            modal.classList.add("hidden");
-            authBtn.classList.add("hidden");
-            profilBtn.classList.remove("hidden");
+            const result = await res.json();
+            localStorage.setItem("pseudo", result.pseudo);
+            messageBox.textContent = "Connexion réussie !";
+            messageBox.className = "api-success";
+            setTimeout(() =>  window.location.href = "/accueil", 1200);
+        } else {
+            const errorText = await res.text();
+            messageBox.textContent = errorText;
+            messageBox.className = "api-error";
         }
     };
 

@@ -89,13 +89,13 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Vérifier le mot de passe
+	// check password hash 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
 		http.Error(w, "Pseudo ou mot de passe incorrect", http.StatusUnauthorized)
 		return
 	}
 
-	// Réponse avec les statistiques
+	// return user information
 	response := map[string]interface{}{
 		"message":     "Connexion réussie",
 		"pseudo":      user.Pseudo,

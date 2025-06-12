@@ -48,6 +48,8 @@ func setupPageRoutes(r *mux.Router) {
 	r.HandleFunc("/accueil", AccueilHandle).Methods("GET")
 	r.HandleFunc("/connexion", ConnexionHandle).Methods("GET")
 	r.HandleFunc("/profil", ProfilHandle).Methods("GET")
+	r.HandleFunc("/api/register", handlers.RegisterUser).Methods("POST")
+	r.HandleFunc("/api/login", handlers.LoginUser).Methods("POST")
 	//r.HandleFunc("/game", GameHandle).Methods("GET")
 }
 
