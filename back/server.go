@@ -94,7 +94,9 @@ func setupAPIRoutes(r *mux.Router) {
 		json.NewEncoder(w).Encode(response)
 	}).Methods("GET")
 }
+
 // ===== Pages HTML =====
+
 func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("template/html/accueil.html")
 	if err != nil {

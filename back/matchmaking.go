@@ -408,4 +408,5 @@ func InitGameServer(){
 		testConn.Close()
 		log.Println("Connexion au serveur OK")
 	}
+	
 }
