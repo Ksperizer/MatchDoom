@@ -38,9 +38,9 @@ MatchDoom/
 
 ## 🛠️ Prérequis
 
-- [Go](https://go.dev/) 1.19+
-- [Python 3.9+](https://www.python.org/)
-- [MySQL](https://www.mysql.com/) 8+
+- [Go](https://go.dev/) 
+- [Python ](https://www.python.org/)
+- [MySQL](https://www.mysql.com/) 
 - Navigateur moderne (Chrome, Firefox…)
 
 ---
@@ -67,14 +67,6 @@ go run main.go
 - Serveur accessible sur: [http://localhost:8080/accueil](http://localhost:8080/accueil)
 - WebSocket client : `ws://localhost:8080/game/ws`
 - WebSocket Python (interne) : `ws://localhost:8081`
-
----
-
-## ✨ Captures d’écran
-
-> 🎥 Interface d’accueil avec boutons, statut temps réel, matchmaking…
-
-![accueil](./template/ressource/image/screenshot_accueil.png)
 
 ---
 

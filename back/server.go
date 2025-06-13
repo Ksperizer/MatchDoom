@@ -27,7 +27,7 @@ func Server() error {
 	setupPageRoutes(r)
 	setupAPIRoutes(r)
 
-	// WebSocket Game (client Python ou JS)
+	// WebSocket Game 
 	r.HandleFunc("/game/ws", HandleWebSocket)
 
 	port := "8080"
@@ -73,7 +73,6 @@ func setupAPIRoutes(r *mux.Router) {
 	// WebSocket
 	api.HandleFunc("/ws", HandleWebGameWS).Methods("GET")
 
-	// Health check amélioré
 	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		stats, err := data.GetGameStats()
 		if err != nil {
@@ -97,7 +96,7 @@ func setupAPIRoutes(r *mux.Router) {
 	}).Methods("GET")
 }
 
-// ===== Pages HTML =====
+// front 
 
 func AccueilHandle(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("template/html/accueil.html")

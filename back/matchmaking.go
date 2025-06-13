@@ -171,6 +171,7 @@ func AddToWSQueue(client *WSClient) {
 	}
 }
 
+// RemoveFromWSQueue removes a client from the WebSocket queue
 func RemoveFromWSQueue(client *WSClient) {
 	wsMutex.Lock()
 	defer wsMutex.Unlock()
@@ -184,6 +185,7 @@ func RemoveFromWSQueue(client *WSClient) {
 	}
 }
 
+// StartWSGame initializes a new WebSocket game between two clients
 func StartWSGame(p1, p2 *WSClient) {
 	gameID := GenerateGameID(p1.Pseudo, p2.Pseudo)
 
@@ -200,7 +202,7 @@ func StartWSGame(p1, p2 *WSClient) {
 
 	log.Printf("WebSocket game started: %s vs %s", p1.Pseudo, p2.Pseudo)
 
-	// Messages de début
+	// Start message
 	startMsg1 := map[string]interface{}{
 		"type": "game_start",
 		"game_id": gameID,

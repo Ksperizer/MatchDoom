@@ -25,7 +25,7 @@ func InitDB() {
 
 	fmt.Println("Connexion Mysql reussite")
 	
-	// Configuration du pool de connexions
+	// Config pool connexion 
 	DB.SetMaxOpenConns(10)
 	DB.SetMaxIdleConns(5)
 	DB.SetConnMaxLifetime(time.Hour)
@@ -292,7 +292,7 @@ func GetActiveMatches() ([]*Match, error) {
 	return matches, nil
 }
 
-// GetAllMatches récupère toutes les parties
+// GetAllMatches get all matches from the database
 func GetAllMatches() ([]*Match, error) {
 	query := `SELECT id, player1_id, player2_id, board, is_finished, winner, created_at FROM matches ORDER BY created_at DESC`
 	
@@ -318,7 +318,6 @@ func GetAllMatches() ([]*Match, error) {
 	return matches, nil
 }
 
-// FONCTIONS POUR LA TABLE MOVES
 
 // AddMove 
 func AddMove(matchID uint, player string, position int) error {
@@ -367,7 +366,7 @@ func GetLastMove(matchID uint) (*Move, error) {
 
 // FONCTIONS UTILITAIRES
 
-// GetGameStats retourne les statistiques générales du jeu
+// GetGameStats return stats for the game
 func GetGameStats() (map[string]int, error) {
 	stats := make(map[string]int)
 
@@ -379,19 +378,19 @@ func GetGameStats() (map[string]int, error) {
 		return nil, err
 	}
 
-	// Nombre de parties actives
+	
 	err = DB.QueryRow("SELECT COUNT(*) FROM matches WHERE is_finished = FALSE").Scan(&activeMatches)
 	if err != nil {
 		return nil, err
 	}
 
-	// Nombre total de parties
+	
 	err = DB.QueryRow("SELECT COUNT(*) FROM matches").Scan(&totalMatches)
 	if err != nil {
 		return nil, err
 	}
 
-	// Joueurs en file d'attente
+	
 	err = DB.QueryRow("SELECT COUNT(*) FROM queue").Scan(&queueCount)
 	if err != nil {
 		return nil, err
@@ -406,14 +405,14 @@ func GetGameStats() (map[string]int, error) {
 	return stats, nil
 }
 
-// CleanOldQueue nettoie les anciennes entrées de la file d'attente
+// CleanOldQueue
 func CleanOldQueue() error {
 	query := `DELETE FROM queue WHERE created_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)`
 	_, err := DB.Exec(query)
 	return err
 }
 
-// GetUserRanking retourne le classement des utilisateurs
+// GetUserRanking 
 func GetUserRanking(limit int) ([]*User, error) {
 	query := `
 		SELECT id, pseudo, password_hash, email, created_at, total_games, wins, losses, draws 
@@ -445,11 +444,7 @@ func GetUserRanking(limit int) ([]*User, error) {
 	return users, nil
 }
 
-// ==========================================
-// FONCTIONS DE TEST POUR INJECTER DES DONNÉES
-// ==========================================
-
-// CreateTestUsers crée des utilisateurs de test
+// CreateTestUsers 
 func CreateTestUsers() error {
 	testUsers := []struct {
 		pseudo, email, password string
@@ -473,7 +468,7 @@ func CreateTestUsers() error {
 	return nil
 }
 
-// CreateTestMatches crée des parties de test
+// CreateTestMatches 
 func CreateTestMatches() error {
 	// Créer quelques parties de test
 	testMatches := []struct {
@@ -496,12 +491,12 @@ func CreateTestMatches() error {
 			continue
 		}
 		
-		// Mettre à jour le plateau
+		// update board 
 		if match.board != "" {
 			UpdateMatchBoard(matchID, match.board)
 		}
 		
-		// Terminer la partie si nécessaire
+		
 		if match.finished {
 			FinishMatch(matchID, match.winner)
 		}
@@ -512,9 +507,8 @@ func CreateTestMatches() error {
 	return nil
 }
 
-// CreateTestMoves crée des coups de test
 func CreateTestMoves() error {
-	// Ajouter quelques coups aux parties actives
+	
 	testMoves := []struct {
 		matchID  uint
 		player   string
@@ -542,7 +536,7 @@ func CreateTestMoves() error {
 	return nil
 }
 
-// PopulateTestData remplit la base avec des données de test
+
 func PopulateTestData() error {
 	log.Println("🌱 Création des données de test...")
 	
@@ -562,7 +556,7 @@ func PopulateTestData() error {
 	return nil
 }
 
-// Close ferme la connexion à la base de données
+// Close closes the database connection
 func Close() error {
 	if DB != nil {
 		return DB.Close()

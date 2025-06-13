@@ -119,14 +119,14 @@ func UpdateStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Vérifier que l'utilisateur existe
+	
 	user, err := data.GetUserByPseudo(req.Pseudo)
 	if err != nil {
 		http.Error(w, "Utilisateur non trouvé", http.StatusNotFound)
 		return
 	}
 
-	// Mettre à jour les statistiques
+
 	err = data.UpdateUserStats(user.ID, req.Result)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Erreur mise à jour stats: %v", err), http.StatusInternalServerError)
