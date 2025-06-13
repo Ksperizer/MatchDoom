@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ⚙️ Placeholder settings button
+    // Placeholder settings button
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
         settingsBtn.addEventListener('click', () => console.log('Paramètres'));
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("authMessage").textContent = result.message;
     };
 
-    // 🎮 Game start logic
+    //  Game start logic
     const playButton = document.getElementById('playButton');
     if (playButton) {
         playButton.addEventListener('click', () => {
