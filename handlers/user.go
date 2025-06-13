@@ -261,24 +261,6 @@ func GetActiveMatches(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func CreateTestData(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
-		return
-	}
-
-	err := data.PopulateTestData()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Erreur création données test: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Données de test créées avec succès",
-	})
-}
-
 func GenerateID() string {
 	return fmt.Sprintf("web_client_%d", time.Now().UnixNano())
 }

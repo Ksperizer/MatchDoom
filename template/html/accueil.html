@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Application API Go</title>
+    <title>MatchDoom - Tic Tac Toe Online</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="../css/accueil.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-    <script src="/script/script.js"></script>
-    
 </head>
 <body>
     <div class="background-overlay"></div>
@@ -15,35 +15,39 @@
     <div class="main-container">
         <!-- ===== HEADER ===== -->
         <header class="app-header">
-            <h1><span class="rocket-emoji">🚀</span> Mon Application API Go</h1>
+            <h1><span class="rocket-emoji">🚀</span> MatchDoom</h1>
             <div class="auth-controls">
                 <div class="status-indicator">
                     <div class="status-dot" id="apiStatus"></div>
                     <span id="statusText">Initialisation...</span>
                 </div>
+                
+                <!-- btn principal update -->
                 <button id="authBtn" class="auth-btn secondary">Connexion / Inscription</button>
                 <button id="profilBtn" class="auth-btn secondary hidden">Mon Profil</button>
+                <button id="logoutBtn" class="auth-btn logout hidden">🚪 Déconnexion</button>
             </div>
         </header>
 
+        <!-- ===== ZONE DE JEU ===== -->
         <main class="game-frame">
             <div class="frame-header">
-                <h2>Zone d'Application</h2>
+                <h2>Zone de Jeu</h2>
                 <div class="frame-controls">
-                    <button class="control-btn" id="refreshBtn">🔄</button>
-                    <button class="control-btn" id="settingsBtn">⚙️</button>
+                    <button class="control-btn" id="refreshBtn" title="Actualiser">🔄</button>
+                    <button class="control-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 </div>
             </div>
 
             <div class="api-content" id="apiContainer">
                 <div class="welcome-screen">
                     <div class="welcome-icon">🎮</div>
-                    <h3>Prêt pour votre API Go</h3>
-                    <p>Intégrez votre contenu dans la section #apiContainer</p>
+                    <h3 id="welcomeTitle">Bienvenue sur MatchDoom</h3>
+                    <p id="welcomeMessage">Connectez-vous pour défier d'autres joueurs au Tic-Tac-Toe !</p>
 
                     <button id="playButton" class="play-button">
                         <span class="play-button-text">
-                            <span class="play-icon">▶</span> Jouer
+                            <span class="play-icon">▶</span> <span id="playButtonText">Jouer</span>
                         </span>
                     </button>
 
@@ -57,36 +61,43 @@
         <!-- ===== FOOTER ===== -->
         <footer class="app-footer">
             <div class="footer-info">
-                <span>🌐 API: <span id="apiUrl">localhost:8080</span></span>
-                <span>📊 Status: <span id="connectionStatus">En attente</span></span>
-                <span>⏰ <span id="currentTime"></span></span>
+                <span>API: <span id="apiUrl">localhost:8080</span></span>
+                <span>Status: <span id="connectionStatus">En attente</span></span>
+                <span><span id="currentTime"></span></span>
             </div>
         </footer>
     </div>
 
     <!-- ===== MODAL POPUP LOGIN ===== -->
     <div class="modal hidden" id="authModal">
-    <div class="modal-content">
-        <span class="close-btn" id="closeModal">&times;</span>
-        <div class="tab">
-            <button id="showLogin">Connexion</button>
-            <button id="showRegister">Inscription</button>
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle">Connexion</h2>
+                <div class="tab-buttons">
+                    <button id="showLogin" class="tab-btn active">Connexion</button>
+                    <button id="showRegister" class="tab-btn">Inscription</button>
+                </div>
+            </div>
+            
+            <form id="loginForm" class="auth-form">
+                <input type="text" name="pseudo" placeholder="Pseudo" required>
+                <input type="password" name="password" placeholder="Mot de passe" required>
+                <button type="submit" class="submit-btn">Se connecter</button>
+            </form>
+            
+            <form id="registerForm" class="auth-form hidden">
+                <input type="text" name="pseudo" placeholder="Pseudo" required>
+                <input type="password" name="password" placeholder="Mot de passe" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <button type="submit" class="submit-btn">S'inscrire</button>
+            </form>
+            
+            <div id="authMessage" class="api-message"></div>
         </div>
-        <form id="loginForm" class="auth-form">
-            <input type="text" name="pseudo" placeholder="Pseudo" required>
-            <input type="password" name="password" placeholder="Mot de passe" required>
-            <button type="submit">Se connecter</button>
-        </form>
-        <form id="registerForm" class="auth-form hidden">
-            <input type="text" name="pseudo" placeholder="Pseudo" required>
-            <input type="password" name="password" placeholder="Mot de passe" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <button type="submit">S'inscrire</button>
-        </form>
-        <div id="authMessage" class="api-message"></div>
     </div>
-</div>
- 
-<script src="/script/connexion.js"></script>
+
+    
+    <script src="/script/accueil.js"></script>
 </body>
 </html>

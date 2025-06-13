@@ -48,17 +48,18 @@ func setupPageRoutes(r *mux.Router) {
 	r.HandleFunc("/accueil", AccueilHandle).Methods("GET")
 	r.HandleFunc("/connexion", ConnexionHandle).Methods("GET")
 	r.HandleFunc("/profil", ProfilHandle).Methods("GET")
-	r.HandleFunc("/api/register", handlers.RegisterUser).Methods("POST")
-	r.HandleFunc("/api/login", handlers.LoginUser).Methods("POST")
+	
 	//r.HandleFunc("/game", GameHandle).Methods("GET")
 }
 
 func setupAPIRoutes(r *mux.Router) {
 	api := r.PathPrefix("/api").Subrouter()
 
-	// Authe
+	// Auth
 	api.HandleFunc("/register", handlers.RegisterUser).Methods("POST")
 	api.HandleFunc("/login", handlers.LoginUser).Methods("POST")
+
+	// User Profile
 	api.HandleFunc("/profile", handlers.GetProfile).Methods("GET")
 
 	// Stats
@@ -170,23 +171,4 @@ type GameStats struct {
 	TotalMatches  int
 }
 
-// func getGameStats() GameStats {
-// 	var stats GameStats
 
-// 	err := data.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&stats.TotalPlayers)
-// 	if err != nil {
-// 		log.Println("Erreur getGameStats (users):", err)
-// 	}
-
-// 	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches WHERE is_finished = FALSE").Scan(&stats.ActiveMatches)
-// 	if err != nil {
-// 		log.Println("Erreur getGameStats (active matches):", err)
-// 	}
-
-// 	err = data.DB.QueryRow("SELECT COUNT(*) FROM matches").Scan(&stats.TotalMatches)
-// 	if err != nil {
-// 		log.Println("Erreur getGameStats (total matches):", err)
-// 	}
-
-// 	return stats
-// }

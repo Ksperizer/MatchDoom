@@ -3,7 +3,7 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-	"log"
+
 
 	_ "github.com/go-sql-driver/mysql" 
 )
@@ -442,118 +442,6 @@ func GetUserRanking(limit int) ([]*User, error) {
 	}
 	
 	return users, nil
-}
-
-// CreateTestUsers 
-func CreateTestUsers() error {
-	testUsers := []struct {
-		pseudo, email, password string
-	}{
-		{"admin", "admin@matchdoom.com", "$2a$10$hash1"},
-		{"alice", "alice@test.com", "$2a$10$hash2"},
-		{"bob", "bob@test.com", "$2a$10$hash3"},
-		{"charlie", "charlie@test.com", "$2a$10$hash4"},
-		{"diana", "diana@test.com", "$2a$10$hash5"},
-	}
-	
-	for _, user := range testUsers {
-		err := CreateUser(user.pseudo, user.password, user.email)
-		if err != nil {
-			log.Printf("Erreur création utilisateur %s: %v", user.pseudo, err)
-		} else {
-			log.Printf("✅ Utilisateur créé: %s", user.pseudo)
-		}
-	}
-	
-	return nil
-}
-
-// CreateTestMatches 
-func CreateTestMatches() error {
-	// Créer quelques parties de test
-	testMatches := []struct {
-		player1ID, player2ID uint
-		finished             bool
-		winner               string
-		board               string
-	}{
-		{1, 2, true, "player1", "X,O,X,O,X,O,X,,"},
-		{2, 3, true, "player2", "X,O,X,O,O,X,O,X,O"},
-		{3, 4, true, "draw", "X,O,X,O,X,O,O,X,O"},
-		{1, 3, false, "", "X,O,X,O,,,,,"},
-		{2, 4, false, "", "X,,O,,X,,,,"},
-	}
-	
-	for _, match := range testMatches {
-		matchID, err := CreateMatch(match.player1ID, match.player2ID)
-		if err != nil {
-			log.Printf("Erreur création partie: %v", err)
-			continue
-		}
-		
-		// update board 
-		if match.board != "" {
-			UpdateMatchBoard(matchID, match.board)
-		}
-		
-		
-		if match.finished {
-			FinishMatch(matchID, match.winner)
-		}
-		
-		log.Printf("✅ Partie créée: ID %d", matchID)
-	}
-	
-	return nil
-}
-
-func CreateTestMoves() error {
-	
-	testMoves := []struct {
-		matchID  uint
-		player   string
-		position int
-	}{
-		{4, "player1", 0}, // X
-		{4, "player2", 1}, // O
-		{4, "player1", 2}, // X
-		{4, "player2", 3}, // O
-		{5, "player1", 0}, // X
-		{5, "player2", 2}, // O
-		{5, "player1", 4}, // X
-	}
-	
-	for _, move := range testMoves {
-		err := AddMove(move.matchID, move.player, move.position)
-		if err != nil {
-			log.Printf("Erreur ajout coup: %v", err)
-		} else {
-			log.Printf("✅ Coup ajouté: partie %d, joueur %s, position %d", 
-				move.matchID, move.player, move.position)
-		}
-	}
-	
-	return nil
-}
-
-
-func PopulateTestData() error {
-	log.Println("🌱 Création des données de test...")
-	
-	if err := CreateTestUsers(); err != nil {
-		return err
-	}
-	
-	if err := CreateTestMatches(); err != nil {
-		return err
-	}
-	
-	if err := CreateTestMoves(); err != nil {
-		return err
-	}
-	
-	log.Println("✅ Données de test créées avec succès!")
-	return nil
 }
 
 // Close closes the database connection

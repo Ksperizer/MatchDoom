@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - MatchDoom</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/accueil.css">
+    <link rel="stylesheet" href="../css/profil.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="background-overlay"></div>
@@ -13,34 +15,84 @@
         <!-- HEADER -->
         <header class="app-header">
             <h1>👤 Mon Profil Joueur</h1>
-            <div class="status-indicator">
-                <div class="status-dot connected" id="profileStatus"></div>
-                <span id="statusText">Connecté</span>
+            <div class="auth-controls">
+                <div class="status-indicator">
+                    <div class="status-dot connected" id="profileStatus"></div>
+                    <span id="statusText">Connecté</span>
+                </div>
+                <button id="logoutBtn" class="auth-btn secondary">Se déconnecter</button>
+                <button onclick="window.location.href='/accueil'" class="auth-btn primary">Retour</button>
             </div>
         </header>
 
         <!-- ZONE PROFIL -->
         <main class="game-frame">
             <div class="frame-header">
-                <h2>Détails du joueur</h2>
+                <h2>Statistiques du joueur</h2>
                 <div class="frame-controls">
-                    <button class="control-btn" onclick="window.location.href='accueil.html'">🏠</button>
-                    <button class="control-btn" id="logoutBtn">🚪</button>
+                    <button class="control-btn" id="refreshProfileBtn">🔄</button>
+                    <button class="control-btn" onclick="showLeaderboard()">🏆</button>
                 </div>
             </div>
 
             <div class="api-content" id="profileContainer">
-                <!-- Infos à charger dynamiquement -->
-                <div class="welcome-screen" id="profileData">
+                <!-- container dynamic -->
+                <div class="api-loading" id="loadingIndicator">
+                    <div class="welcome-icon">⏳</div>
+                    <h3>Chargement du profil...</h3>
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <!-- User profil -->
+                <div class="welcome-screen hidden" id="profileData">
                     <div class="welcome-icon">🎯</div>
                     <h3 id="pseudoDisplay">Pseudo: ...</h3>
                     <p>Email: <span id="emailDisplay">...</span></p>
-                    <div class="api-success">
-                        <p><strong>Parties jouées :</strong> <span id="games">0</span></p>
-                        <p><strong>Victoires :</strong> <span id="wins">0</span></p>
-                        <p><strong>Défaites :</strong> <span id="losses">0</span></p>
-                        <p><strong>Égalités :</strong> <span id="draws">0</span></p>
+                    <p>Membre depuis: <span id="memberSince">...</span></p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalGames">0</div>
+                            <div class="stat-label">Parties jouées</div>
+                        </div>
+                        <div class="stat-card wins">
+                            <div class="stat-number" id="wins">0</div>
+                            <div class="stat-label">Victoires</div>
+                        </div>
+                        <div class="stat-card losses">
+                            <div class="stat-number" id="losses">0</div>
+                            <div class="stat-label">Défaites</div>
+                        </div>
+                        <div class="stat-card draws">
+                            <div class="stat-number" id="draws">0</div>
+                            <div class="stat-label">Égalités</div>
+                        </div>
                     </div>
+
+                    <div class="win-rate-container">
+                        <div class="win-rate-circle">
+                            <div class="win-rate-text">
+                                <span id="winRatePercent">0%</span>
+                                <small>Taux de victoire</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="playFromProfileBtn" class="play-button">
+                        <span class="play-button-text">
+                            <span class="play-icon">▶</span> Nouvelle partie
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Error Msg -->
+                <div class="api-error hidden" id="errorMessage">
+                    <div class="welcome-icon">❌</div>
+                    <h3>Erreur de chargement</h3>
+                    <p id="errorText">Impossible de charger le profil</p>
+                    <button onclick="loadProfile()" class="auth-btn primary">Réessayer</button>
                 </div>
             </div>
         </main>
@@ -48,40 +100,26 @@
         <!-- FOOTER -->
         <footer class="app-footer">
             <div class="footer-info">
-                <span>🔐 Session : <span id="apiUser">Utilisateur connecté</span></span>
+                <span>🔐 Session : <span id="sessionUser">Utilisateur connecté</span></span>
                 <span>🎮 App : MatchDoom</span>
-                <span>📅 <span id="currentTime"></span></span>
+                <span>⏰ <span id="currentTime"></span></span>
             </div>
         </footer>
     </div>
 
-    <script>
-        const API_BASE_URL = "http://localhost:8080"
+    <!-- Modal Classement -->
+    <div class="modal hidden" id="leaderboardModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeLeaderboard()">&times;</span>
+            <h2>🏆 Classement</h2>
+            <div id="leaderboardContent">
+                <div class="api-loading">
+                    <div class="loading-dots"><span></span><span></span><span></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        async function loadProfile() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/me`);
-                const data = await response.json();
-
-                document.getElementById("pseudoDisplay").textContent = `Pseudo: ${data.pseudo}`;
-                document.getElementById("emailDisplay").textContent = data.email;
-                document.getElementById("games").textContent = data.total_games;
-                document.getElementById("wins").textContent = data.wins;
-                document.getElementById("losses").textContent = data.losses;
-                document.getElementById("draws").textContent = data.draws;
-                document.getElementById("apiUser").textContent = data.pseudo;
-            } catch (err) {
-                document.getElementById("profileContainer").innerHTML =
-                    `<div class="api-error">❌ Erreur de chargement du profil</div>`;
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", loadProfile);
-
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-            // TODO : clear token/session si implémenté
-            window.location.href = "accueil.html";
-        });
-    </script>
+    <script src="../js/profil.js"></script>
 </body>
 </html>
