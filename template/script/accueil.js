@@ -142,13 +142,13 @@ function updateContentForGuest() {
 }
 
 function setStatusConnected() {
-    // Arrêter le cycle automatique
+    // stop status cycle if it exists
     if (statusInterval) {
         clearInterval(statusInterval);
         statusInterval = null;
     }
     
-    // Fixer le statut sur connecté
+    // Fixe status connect 
     const statusDot = document.getElementById('apiStatus');
     const statusText = document.getElementById('statusText');
     const connectionStatus = document.getElementById('connectionStatus');
