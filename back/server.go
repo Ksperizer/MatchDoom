@@ -7,9 +7,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
 func Server() error {
@@ -74,6 +76,12 @@ func setupAPIRoutes(r *mux.Router) {
 	// WebSocket
 	api.HandleFunc("/ws", HandleWebGameWS).Methods("GET")
 
+	// PROXY WebSocket to Python Game
+	api.HandleFunc("/proxy/stats", getProxyStats).Methods("GET")
+	api.HandleFunc("/python/status", getPythonServerStatus).Methods("GET")
+
+
+
 	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		stats, err := data.GetGameStats()
 		if err != nil {
@@ -81,10 +89,13 @@ func setupAPIRoutes(r *mux.Router) {
 			return
 		}
 
+		proxyStats := GetProxyStats()
+
 		response := map[string]interface{}{
 			"status":            "ok",
 			"database":          "connected",
 			"python_game":       "ws://localhost:8081/game/ws",
+			"python_game_status": proxyStats["status"],
 			"total_users":       stats["total_users"],
 			"active_matches":    stats["active_matches"],
 			"total_matches":     stats["total_matches"],
@@ -164,11 +175,60 @@ func HandleWebGameWS(w http.ResponseWriter, r *http.Request) {
 	HandleWebSocket(w, r)
 }
 
-// ===== Statistiques =====
+// stats 
 type GameStats struct {
 	TotalPlayers  int
 	ActiveMatches int
 	TotalMatches  int
 }
+
+func getProxyStats(w http.ResponseWriter, r *http.Request) {
+	stats := GetProxyStats()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(stats)
+}
+
+func getPythonServerStatus(w http.ResponseWriter, r *http.Request) {
+	status := map[string]interface{}{
+		"python_server" : "ws://localhost:8081",
+		"status" :"checking",
+	}
+
+	pythonURL := url.URL{Scheme: "ws", Host: "localhost:8081"}
+	conn, _, err := websocket.DefaultDialer.Dial(pythonURL.String(), nil)
+	if err != nil {
+		status["status"] = "offline"
+		status["error"] = err.Error()
+	}else {
+		conn.Close()
+		status["status"] = "online"
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(status)
+}
+
+
+
+// === ARRÊT ===
+
+func Shutdown() {
+	log.Println(" Arrêt du hub de matchmaking...")
+	
+	if hub != nil {
+		// close all active connections
+		hub.clientMutex.Lock()
+		for _, client := range hub.clients {
+			if client.PythonConn != nil {
+				client.PythonConn.Close()
+			}
+			close(client.Send)
+		}
+		hub.clientMutex.Unlock()
+	}
+	
+	log.Println(" Hub fermé proprement")
+}
+
+
 
 

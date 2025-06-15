@@ -5,59 +5,54 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-connected_players = []
+clients = set()
 
 async def handle_player(websocket):
-    try: 
-        logging.info("Nouvelle connexion")
+    logging.info("Nouvelle connexion webSocket {websocket.path}")
+    clients.add(websocket)
+    try:
+        async for message in websocket: 
+            logging.info(f"Message reçu: {message}")
+            await websocket.send("echo: " + message)  # Echo the message back to the client
+            try:
+                data = json.loads(message)
+                response = await handle_message(data, websocket)
+                if response: 
+                    await websocket.send(json.dumps(response))
+            except json.JSONDecodeError:
+                await websocket.send(json.dumps({"type": "error", "message": "Invalid JSON"}))
+    except websockets.ConnectionClosed as e:
+        logging.info(f"Connexion fermée: {e}")
+    finally:
+        clients.remove(websocket)
+    
+async def handle_message(data, websocket):
+    msg_type = data.get("type")
 
-        message = await websocket.recv()
-        data = json.loads(message)
+    if msg_type == "ping":
+        return {"type": "pong"}
+    elif msg_type == "join":
+        pseudo = data.get("pseudo")
+        logging.info(f"Pseudo {pseudo} a rejoint la file d'attente")
+        return {
+            "type": "queue",
+            "message": "En attente d'un adversaire",
+            "position": len(clients)
+        }
+    elif msg_type == "test":
+        return {"type": "info", "message":  "Serveur python en ligne "}
+    else:
+        return {"type": "error", "message": "message non reconnu"}
 
-        if data.get("type") != "join" or not data.get("pseudo"):
-            await websocket.send(json.dumps({"type": "error", "message": "Données invalides"}))
-            return
-        
-        pseudo = data["pseudo"]
-        logging.info(f"{pseudo} a rejoint la file d'attente")
-        
-        connected_players.append((pseudo, websocket))
-
-        # notify player position in queue
-        await websocket.send(json.dumps({
-            "type":  "queue",
-            "message": "Ajouter  à la file d'attente",
-            "position": len(connected_players)
-        }))
-
-        # if 2 players are connected, start the game
-        if len(connected_players) == 2:
-            p1, ws1 = connected_players.pop(0)
-            p2, ws2 = connected_players.pop(0)
-
-            # notify players that the game is starting
-            await ws1.send(json.dumps({
-                "type": "game_start",
-                "opponent": p2
-            }))
-            await ws2.send(json.dumps({
-                "type": "game_start",
-                "opponent": p1
-            }))
-
-            logging.info(f"Le match commence {p1} vs {p2}")
-
-    except websockets.exceptions.ConnectionClosed:
-        logging.warning("Connexion fermée")
-    except Exception as e:
-        logging.error(f"Erreur serveur : {e}")
-
-# start the server
 async def main():
+    logging.info("Debut du serveur WebSocket sur ws://localhost:8081")
     async with websockets.serve(handle_player, "0.0.0.0", 8081):
-        logging.info("Serveur WebSocket démarré sur ws://localhost:8081")
         await asyncio.Future() # run forever
 
 if __name__ == "__main__":
-    asyncio.run(main())
-            
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.info("Serveur WebSocket arrêté par l'utilisateur")
+
+

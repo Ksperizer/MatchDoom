@@ -37,6 +37,7 @@ type User struct {
 	PasswordHash string   `json:"password_hash"`
 	Email       string    `json:"email"`
 	CreatedAt   time.Time `json:"created_at"`
+	LastSeen    time.Time `json:"last_seen"`
 	TotalGames  uint      `json:"total_games"`
 	Wins        uint      `json:"wins"`
 	Losses      uint      `json:"losses"`
@@ -104,6 +105,22 @@ func GetUserByEmail(email string) (*User, error) {
 		&user.ID, &user.Pseudo, &user.PasswordHash, &user.Email, &user.CreatedAt,
 		&user.TotalGames, &user.Wins, &user.Losses, &user.Draws,
 	)
+
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+// GetUserByID retrieves a user by their ID
+func GetUserByID(userID uint) (*User, error) {
+	user := &User{}
+	query := `SELECT id, pseudo, password_hash, email, created_at, total_games, wins, losses, draws FROM users WHERE id = ?`
+
+	err := DB.QueryRow(query, userID).Scan(
+		&user.ID, &user.Pseudo, &user.PasswordHash, &user.Email, &user.CreatedAt,
+        &user.TotalGames, &user.Wins, &user.Losses, &user.Draws,
+    )
 
 	if err != nil {
 		return nil, err
@@ -443,6 +460,14 @@ func GetUserRanking(limit int) ([]*User, error) {
 	
 	return users, nil
 }
+
+// UpdateUserLastSeen updates the last seen timestamp for a user
+func UpdateUserLastSeen(userID uint) error {
+	query := `UPDATE users SET last_seen = NOW() WHERE id = ?`
+	_, err := DB.Exec(query, userID)
+	return err 
+}
+	
 
 // Close closes the database connection
 func Close() error {
