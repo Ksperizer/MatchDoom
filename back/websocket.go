@@ -27,7 +27,7 @@ type WSClient struct {
 	PythonConn *websocket.Conn
 	IsActive   bool
 	Rating     int
-	mutex      sync.Mutex
+	mutex      sync.RWMutex
 }
 
 type WSGame struct {
