@@ -1,22 +1,39 @@
+# 🎮 MatchDoom
 
-# 🎮 MatchDoom - Jeu Tic Tac Toe Multijoueur avec Go, WebSocket & Python
+> Jeu de morpion multijoueur temps réel avec interface Pygame, backend Go, logique réseau WebSocket et moteur Python.
 
-Bienvenue sur **MatchDoom**, un projet de jeu en ligne de morpion (Tic Tac Toe) permettant à **deux joueurs** de s'affronter **en temps réel** grâce à **Go (backend/API)**, **HTML/CSS/JS (interface web)** et **Python (moteur de jeu via WebSocket)**.
+## 🧠 Description
 
----
-
-## 🚀 Fonctionnalités
-
-- 🔐 Connexion & inscription avec stockage sécurisé des utilisateurs (hash de mot de passe).
-- 📊 Statistiques joueur (victoires, défaites, égalités, parties totales).
-- 💬 Matchmaking temps réel via WebSocket (Go <=> Python).
-- 🎨 Interface web moderne, responsive et interactive.
-- 🧠 Moteur de jeu Python multijoueur (1v1) avec logique serveur.
-- 💾 Base de données MySQL pour stocker les utilisateurs et matchs.
+**MatchDoom** est un projet de jeu multijoueur en ligne où deux joueurs s'affrontent dans un **morpion** classique. L’infrastructure repose sur une architecture distribuée :  
+- **Go** gère l’API REST, la file d’attente, les WebSockets côté client web.
+- **Python** pilote la logique réseau pour le jeu en Pygame via WebSockets.
+- **MySQL** stocke les utilisateurs, scores et classements.
 
 ---
 
-## 📁 Arborescence du projet
+## 🚀 Fonctionnalités principales
+
+- 🔐 **Connexion / inscription** sécurisées (hash `bcrypt`, JSON API).
+- 🕸️ **WebSocket matchmaking** temps réel (file d’attente, appairage).
+- 🎲 **Interface Pygame** pour le jeu : intuitif, fluide, réactif.
+- 📊 **Statistiques et classement** sauvegardés dans la base de données.
+- 🌐 **Interface Web** (auth, stats, lancement de partie).
+
+---
+
+## 🛠️ Technologies utilisées
+
+| Composant | Tech |
+|----------|------|
+| Backend | Go (Golang), Gorilla Mux, WebSocket |
+| Frontend Web | HTML, JS, CSS |
+| Jeu | Python 3, Pygame |
+| Base de données | MySQL |
+| Communication temps réel | WebSocket (Go ⇄ Python ⇄ Client) |
+
+---
+
+## 📁 Architecture
 
 ```
 MatchDoom/
@@ -34,27 +51,11 @@ MatchDoom/
 └── README.md
 ```
 
----
-
-## 🛠️ Prérequis
-
-- [Go](https://go.dev/) 
-- [Python ](https://www.python.org/)
-- [MySQL](https://www.mysql.com/) 
-- Navigateur moderne (Chrome, Firefox…)
-
----
-
 ## 🔧 Installation et Lancement
 
-### 1. ⚙️ Lancer le serveur Python (moteur de jeu)
-
-```bash
-cd game
-python websocket.py
 ```
-
-> Ce serveur écoute par défaut sur `ws://localhost:8081`
+pip install websockets pygame
+```
 
 ---
 
@@ -72,10 +73,10 @@ go run main.go
 
 ## 💡 Notes techniques
 
-- Le matchmaking est géré côté Python.
+- Le matchmaking est géré côté Golang.
 - Le bouton "Jouer" lance la connexion WebSocket côté client.
 - Le backend Go redirige automatiquement vers les bonnes pages.
-- Les utilisateurs doivent être connectés (`localStorage.pseudo`) pour jouer.
+
 
 ---
 
